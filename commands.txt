@@ -1,0 +1,6 @@
+# Install additional architectures
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# Doesn't work (works on Windows,  but croaks on Linux due to DNS setup )
+docker buildx create --use --name mybuild linux/amd64
+docker buildx create --append --name mybuild linux/arm64
