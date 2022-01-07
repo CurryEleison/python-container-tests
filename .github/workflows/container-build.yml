@@ -7,7 +7,7 @@ jobs:
     name: Multistage build of container in multiple architectures
     defaults:
       run:
-        working-directory: ./alpine-pipenv
+        working-directory: ./slim-pipenv
     env:
       DOCKERHUB_REPO: curryeleison/python-container-tests
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./alpine-pipenv
+          context: ./slim-pipenv
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
