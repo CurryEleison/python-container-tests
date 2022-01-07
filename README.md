@@ -1,15 +1,7 @@
 # Python Container Tests
 
 Testing multistage builds with docker:
-- Based on slim image
-- Converts your Pipfile.lock to a requirements.txt
-- Installs gcc in builder image so you can compile stuff
-- Then builds dependencies from requirements.txt into wheels in /wheels
-- Then uses the /wheels from the builder container to create a deployment container
-
-File ´Dockerfile.alpine´ demonstrates building numpy in an alpine container. 
-
-
-## TODO
-[ ] Also add pandas, matplotlib, psycopg2, pymssql 
-
+- `slim-pipenv` shows how to do a multistage build starting with a Pipfile.lock, converting it to requirements.txt and then compile and copy the wheels
+- `alpine-databases` shows how to do multistage build of popular database python packages
+- `slim-datascience` is a multistage build of standard data science packages. This one needs work as the produced image is pretty bloated -- would be better just to create a straight image
+- `alpine-datascience` is an attempt at getting matplotlib going in alpine. Not successful yet, but not sure the difference between alpine and slim are useful for this purpose.

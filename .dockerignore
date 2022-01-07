@@ -1,9 +1,9 @@
 
 Dockerfile
 .dockerignore
-.git/
-.github/
-.gitignore
+**/.git/
+**/.github/
+**/.gitignore
 
 commands.txt
 

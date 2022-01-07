@@ -4,7 +4,10 @@ on: push
 
 jobs:
   imagebuild:
-    name: Build container in multiple architectures
+    name: Multistage build of container in multiple architectures
+    defaults:
+      run:
+        working-directory: ./alpine-pipenv
     env:
       DOCKERHUB_REPO: curryeleison/python-container-tests
     runs-on: ubuntu-latest
@@ -34,9 +37,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ./alpine-pipenv
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
