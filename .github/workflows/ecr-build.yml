@@ -53,7 +53,7 @@ jobs:
           echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
       - name: Build image and tag it
         run: |
-          docker build --load -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
+          docker build --load --platform=linux/amd64,linux/arm64 -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
       - name: Tag as latest and push repo if we are on default branch
         if: ${{ steps.branchinfo.outputs.isdefault == 'true' }}
         run: |
