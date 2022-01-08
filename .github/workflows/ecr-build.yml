@@ -44,12 +44,10 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        run: |
-          echo "::set-output name=repository::alpine-boto3-demo"
       - name: Build image and tag it
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ steps.login-ecr.outputs.repository }}
+          ECR_REPOSITORY: alpine-boto3-demo
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
