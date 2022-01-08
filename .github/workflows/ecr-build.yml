@@ -5,11 +5,6 @@ on:
     paths:
       - 'alpine-boto3-ecr/**/*'
       - '.github/workflows/ecr-build.yml'
-
-env:
-  AWS_DEFAULT_REGION: eu-west-1
-  PRODUCTION_ROLE_ARN: arn:aws:iam::377243189808:role/production-fargate-etl-ImageBuilderRole-EETRZHDKKY3
-
 jobs:
   boto3imagebuildpush:
     name: Build Boto3 image
@@ -17,6 +12,7 @@ jobs:
       run:
         working-directory: ./alpine-boto3-ecr
     env:
+      AWS_DEFAULT_REGION: eu-west-1
       ECR_REPOSITORY: alpine-boto3-demo
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +38,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
           role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
           # role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
           role-duration-seconds: 3600
@@ -56,12 +52,14 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker image ls
       - name: Tag as latest and push repo if we are on default branch
         if: ${{ steps.branchinfo.outputs.isdefault == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          docker image ls
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
