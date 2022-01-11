@@ -1,4 +1,4 @@
-name: Boto3 container demo build and push
+name: Boto3 container demo bake
 
 on:
   push:
@@ -67,7 +67,6 @@ jobs:
       - name: Build
         uses: docker/bake-action@v1
         with:
-          context: ./alpine-bake-meta
           files: |
             ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
