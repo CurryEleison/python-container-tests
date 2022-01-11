@@ -1,4 +1,4 @@
-name: Boto3 container demo build and push
+name: Boto3 container demo with docker/build-push-action
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - 'alpine-buildpush-ecr/**/*'
       - '.github/workflows/ecr-buildpush.yml'
 jobs:
-  boto3imagebuildpush:
-    name: Build Boto3 image
+  boto3imagebuildpushaction:
+    name: Build Boto3 image with docker/build-push-action
     defaults:
       run:
         working-directory: ./alpine-buildpush-ecr
@@ -48,7 +48,6 @@ jobs:
         id: buildinfo
         run: |
           echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
-          echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
       - name: Docker meta - set up image tags and labels
         id: meta
         uses: docker/metadata-action@v3
