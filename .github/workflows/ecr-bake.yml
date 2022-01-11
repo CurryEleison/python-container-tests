@@ -60,7 +60,6 @@ jobs:
             type=sha
           flavor: |
             latest=true
-            # latest=${{ steps.branchinfo.outputs.isdefault }}
       - name: Build
         uses: docker/bake-action@v1
         with:
