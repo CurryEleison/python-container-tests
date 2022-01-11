@@ -65,7 +65,7 @@ jobs:
         with:
           # context: ./alpine-boto3-ecr
           files: |
-            ./docker-bake.hcl
+            ./alpine-boto3-ecr/docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: build
           push: false
