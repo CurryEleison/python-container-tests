@@ -1,6 +1,6 @@
 FROM python:3-alpine AS builder
 
-COPY . /app
+COPY ./alpine-bake-meta/ /app
 WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -16,7 +16,7 @@ FROM python:3-alpine
 
 LABEL maintainer=petersen@temp.dk
 
-COPY . /app
+COPY ./alpine-bake-meta/ /app
 WORKDIR /app
 
 COPY --from=builder /app/wheels /wheels
