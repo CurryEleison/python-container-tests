@@ -1,0 +1,76 @@
+name: Boto3 container demo build and push
+
+on:
+  push:
+    paths:
+      - 'alpine-bake-meta/**/*'
+      - '.github/workflows/ecr-bake.yml'
+jobs:
+  boto3imagebuildpush:
+    name: Build Boto3 image
+    defaults:
+      run:
+        working-directory: ./alpine-boto3-ecr
+    env:
+      AWS_DEFAULT_REGION: eu-west-1
+      ECR_REPOSITORY: alpine-bake-meta-demo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Branch information
+        id: branchinfo
+        run: |
+          echo "::set-output name=isdefault::$([[ ${GITHUB_REF##*/} == "${{ github.event.repository.default_branch }}" ]] && echo true || echo false)"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: amd64,arm64
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          role-to-assume: ${{ secrets.AWS_ECR_PUSH_ROLE_ARN }}
+          # role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
+          role-duration-seconds: 3600
+          role-session-name: EcrBuildWorkerImageSession
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Image names
+        id: buildinfo
+        run: |
+          echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
+          echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.buildinfo.outputs.image_repo }}
+          tags: |
+            type=sha
+          flavor: |
+            latest=true
+            # latest=${{ steps.branchinfo.outputs.isdefault }}
+      - name: Build
+        uses: docker/bake-action@v1
+        with:
+          # context: ./alpine-boto3-ecr
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: build
+          push: false
+      - name: Inspect
+        run: |
+          cat ${{ steps.meta.outputs.bake-file }}
+          docker inspect ${{ steps.buildinfo.outputs.image_repo }}:latest
