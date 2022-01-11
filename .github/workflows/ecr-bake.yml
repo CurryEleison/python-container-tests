@@ -60,6 +60,10 @@ jobs:
             type=sha
           flavor: |
             latest=true
+      - name: Debug
+        run: |
+          pwd
+          ls -al
       - name: Build
         uses: docker/bake-action@v1
         with:
