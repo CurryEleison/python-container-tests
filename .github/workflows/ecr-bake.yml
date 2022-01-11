@@ -71,8 +71,4 @@ jobs:
             ./alpine-bake-meta/docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: build
-          push: false
-      - name: Inspect
-        run: |
-          cat ${{ steps.meta.outputs.bake-file }}
-          docker inspect ${{ steps.buildinfo.outputs.image_repo }}:latest
+          push: true
