@@ -59,7 +59,7 @@ jobs:
           tags: |
             type=sha
           flavor: |
-            latest=true
+            latest=${{ steps.branchinfo.outputs.isdefault }}
       - name: Debug
         run: |
           pwd
@@ -71,4 +71,4 @@ jobs:
             ./alpine-bake-meta/docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: build
-          push: true
+          push: ${{ steps.branchinfo.outputs.isdefault == 'true' }}
