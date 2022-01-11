@@ -67,9 +67,9 @@ jobs:
       - name: Build
         uses: docker/bake-action@v1
         with:
-          # context: ./alpine-boto3-ecr
+          context: ./alpine-bake-meta
           files: |
-            ./alpine-bake-meta/docker-bake.hcl
+            ./docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
           targets: build
           push: false
