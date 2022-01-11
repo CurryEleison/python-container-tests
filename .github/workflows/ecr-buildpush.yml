@@ -1,19 +1,19 @@
-name: Boto3 container demo build and push
+name: Boto3 container demo with docker/build-push-action
 
 on:
   push:
     paths:
-      - 'alpine-boto3-ecr/**/*'
-      - '.github/workflows/ecr-build.yml'
+      - 'alpine-buildpush-ecr/**/*'
+      - '.github/workflows/ecr-buildpush.yml'
 jobs:
-  boto3imagebuildpush:
-    name: Build Boto3 image
+  boto3imagebuildpushaction:
+    name: Build Boto3 image with docker/build-push-action
     defaults:
       run:
-        working-directory: ./alpine-boto3-ecr
+        working-directory: ./alpine-buildpush-ecr
     env:
       AWS_DEFAULT_REGION: eu-west-1
-      ECR_REPOSITORY: alpine-boto3-demo
+      ECR_REPOSITORY: alpine-buildpush-demo
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,8 +31,6 @@ jobs:
         uses: docker/setup-buildx-action@v1
         with:
           install: true
-      - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -50,13 +48,20 @@ jobs:
         id: buildinfo
         run: |
           echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
-          echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
-      - name: Build image and tag it
-        run: |
-          docker build --load -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
-      - name: Tag as latest and push repo if we are on default branch
-        if: ${{ steps.branchinfo.outputs.isdefault == 'true' }}
-        run: |
-          docker build --push --platform=linux/amd64,linux/arm64 -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
-          docker tag ${{ steps.buildinfo.outputs.image_repo_shatag }} ${{ steps.buildinfo.outputs.image_repo }}:latest
-          docker push ${{ steps.buildinfo.outputs.image_repo }}:latest
+      - name: Docker meta - set up image tags and labels
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ steps.buildinfo.outputs.image_repo }}
+          tags: |
+            type=sha
+          flavor: |
+            latest=${{ steps.branchinfo.outputs.isdefault }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./alpine-buildpush-ecr
+          platforms: linux/amd64,linux/arm64
+          push: ${{ steps.branchinfo.outputs.isdefault == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
