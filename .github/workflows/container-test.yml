@@ -1,0 +1,38 @@
+name: Python container to demonstrate tests in CICD
+
+on:
+  push:
+    paths:
+      - 'slim-testing/**/*'
+      - '.github/workflows/container-test.yml'
+
+jobs:
+  containertestaction:
+    name: Build image, but run testing before pushing
+    defaults:
+      run:
+        working-directory: ./slim-testing
+    env:
+      DOCKERHUB_REPOSITORY: curryeleison/python-testing-demo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build test target
+        uses: docker/build-push-action@v2
+        with:
+          context: ./slim-testing
+          push: false
+          load: true
+          target: test
+          tags: ${{ env.DOCKERHUB_REPOSITORY }}:test
+      - name: Run linting and tests
+        run: |
+          docker image ls
+          docker inspect ${{ env.DOCKERHUB_REPOSITORY }}:test
+          docker run -it --rm ${{ env.DOCKERHUB_REPOSITORY }}:test
+      - name: Branch information
+        id: branchinfo
+        run: |
+          echo "::set-output name=isdefault::$([[ ${GITHUB_REF##*/} == "${{ github.event.repository.default_branch }}" ]] && echo true || echo false)"
+

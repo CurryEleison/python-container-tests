@@ -25,7 +25,8 @@ USER app
 RUN pipenv install --dev
 
 # Can run pylama to prevent builds if linting isn't perfect enough
-RUN pipenv run pylama
+# RUN pipenv run pylama
+# But in this case I want to demo a test action
 
 # Using string syntax because we want a shell to support the &&
 CMD pipenv run pylama && pipenv run pytest
