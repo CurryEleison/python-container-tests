@@ -7,7 +7,6 @@ name = "pypi"
 numpy = "*"
 
 [dev-packages]
-jupyter = "*"
 pytest = "*"
 pylama = {extras = ["all"], version = "*"}
 
