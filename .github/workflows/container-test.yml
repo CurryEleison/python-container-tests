@@ -1,0 +1,67 @@
+name: Python container to demonstrate tests in CICD
+
+on:
+  push:
+    paths:
+      - 'slim-testing/**/*'
+      - '.github/workflows/container-test.yml'
+
+jobs:
+  containertestaction:
+    name: Build image, but run testing before pushing
+    defaults:
+      run:
+        working-directory: ./slim-testing
+    env:
+      DOCKERHUB_REPOSITORY: curryeleison/python-testing-demo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build test target
+        uses: docker/build-push-action@v2
+        with:
+          context: ./slim-testing
+          push: false
+          load: true
+          target: test
+          tags: ${{ env.DOCKERHUB_REPOSITORY }}:test
+      - name: Run linting and tests
+        run: |
+          docker run --rm ${{ env.DOCKERHUB_REPOSITORY }}:test
+      - name: Branch information
+        id: branchinfo
+        run: |
+          echo "::set-output name=isdefault::$([[ ${GITHUB_REF##*/} == "${{ github.event.repository.default_branch }}" ]] && echo true || echo false)"
+      - name: Set up QEMU to fetch amd64 and arm64
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: amd64,arm64
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: Docker meta - set up image tags and labels
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.DOCKERHUB_REPOSITORY }}
+          tags: |
+            type=sha
+          flavor: |
+            latest=${{ steps.branchinfo.outputs.isdefault }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./slim-testing
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
