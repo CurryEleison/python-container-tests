@@ -31,6 +31,7 @@ jobs:
         run: |
           echo $PWD
           mkdir -p $PWD/test-results/
+          chmod -R 777 $PWD/test-results/
           echo "::set-output name=testdir::$PWD/test-results/"
       - name: Debugging
         run: |
