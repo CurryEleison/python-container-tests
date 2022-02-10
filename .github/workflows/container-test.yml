@@ -31,14 +31,10 @@ jobs:
         run: |
           echo $PWD
           mkdir -p $PWD/test-results/
-          chmod -R 777 $PWD/test-results/
           echo "::set-output name=testdir::$PWD/test-results/"
-      - name: Debugging
-        run: |
-          ls ${{ steps.testsetup.outputs.testdir }}
       - name: Run linting and tests
         run: |
-          docker run --rm  -v ${{ steps.testsetup.outputs.testdir }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
+          docker run --rm -u $(id -u) -v ${{ steps.testsetup.outputs.testdir }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
       - name: More Debugging
         run: |
           ls ${{ steps.testsetup.outputs.testdir }}
