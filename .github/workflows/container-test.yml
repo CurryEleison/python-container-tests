@@ -26,19 +26,23 @@ jobs:
           load: true
           target: test
           tags: ${{ env.DOCKERHUB_REPOSITORY }}:test
-      - name: Debugging
+      - name: Set up test results dir
+        id: testsetup
         run: |
           echo $PWD
           mkdir -p $PWD/test-results/
-          echo "::set-output $PWD/test-results/"
+          echo "::set-output name=testdir::$PWD/test-results/"
+      - name: Debugging
+        run: |
+          ls ${{ steps.testsetup.outputs.testdir }}
       - name: Run linting and tests
         run: |
-          docker run --rm  -v ${{ steps.branchinfo.outputs.isdefault }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
+          docker run --rm  -v ${{ steps.testsetup.outputs.testdir }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
-          files: ${{ steps.branchinfo.outputs.isdefault }}**/*.xml
+          files: ${{ steps.testsetup.outputs.testdir }}**/*.xml
       - name: Branch information
         id: branchinfo
         run: |
