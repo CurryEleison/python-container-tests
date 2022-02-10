@@ -29,15 +29,12 @@ jobs:
       - name: Set up test results dir
         id: testsetup
         run: |
-          echo $PWD
           mkdir -p $PWD/test-results/
+          chmod 777 $PWD/test-results/
           echo "::set-output name=testdir::$PWD/test-results/"
       - name: Run linting and tests
         run: |
-          docker run --rm -u $(id -u) -v ${{ steps.testsetup.outputs.testdir }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
-      - name: More Debugging
-        run: |
-          ls ${{ steps.testsetup.outputs.testdir }}
+          docker run --rm -v ${{ steps.testsetup.outputs.testdir }}:"/app/test-results/" ${{ env.DOCKERHUB_REPOSITORY }}:test
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
