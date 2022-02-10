@@ -27,8 +27,12 @@ jobs:
           target: test
           tags: ${{ env.DOCKERHUB_REPOSITORY }}:test
       - name: Run linting and tests
-        run: |
-          docker run --rm ${{ env.DOCKERHUB_REPOSITORY }}:test
+          docker run --rm ${{ env.DOCKERHUB_REPOSITORY }}:test -v "/home/runner/test-results/":"/app/test-results/"
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          files: /home/runner/test-results/**/*.xml
       - name: Branch information
         id: branchinfo
         run: |
