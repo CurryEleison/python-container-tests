@@ -11,5 +11,5 @@ Note:
 
 Bake action doesn't support a context, so there's a LOT of adding paths
 unless your Dockerfile etc are in the root dir of your GitHub repo. Consider
-logging an issue, but mostly probably just use `docker/build-push-action@v2`
+logging an issue, but mostly probably just use `docker/build-push-action@v3`
 action instead of bake.
