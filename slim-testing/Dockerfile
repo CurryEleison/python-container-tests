@@ -37,7 +37,11 @@ FROM base as builder
 WORKDIR /app
 USER app
 
-RUN pipenv lock -r > requirements.txt \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc \
+    && python -m pip install --upgrade pip \
+    && pip install pipfile-requirements \
+    && pipfile2req > requirements.txt \
     && pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 # Now make the production container
