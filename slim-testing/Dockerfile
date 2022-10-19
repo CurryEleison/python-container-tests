@@ -34,10 +34,19 @@ CMD pipenv run pylama && pipenv run pytest --junitxml=test-results/pytest.xml
 # Builder image to create wheels for production
 FROM base as builder
 
+USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc
+
+
 WORKDIR /app
 USER app
 
-RUN pipenv lock -r > requirements.txt \
+RUN python -m pip install --upgrade pip \
+    && pip install pipfile-requirements \
+    && PATH=~/.local/bin:$PATH \
+    && pipfile2req > requirements.txt \
     && pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
 
 # Now make the production container

@@ -5,7 +5,7 @@
 - Does a multiarch build
 - Tags with SHA
 - Tags with latest and pushes to repo if on default branch
-- Uses `docker/build-push-action@v2`
+- Uses `docker/build-push-action@v3`
 
 Probably, this is better than using bake and/or straight docker
 commands. Bake doesn't seem quite finished at this point
