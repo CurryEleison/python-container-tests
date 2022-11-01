@@ -49,8 +49,10 @@ jobs:
       - name: Image names
         id: buildinfo
         run: |
-          echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
-          echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
+          # echo "::set-output name=image_repo::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY"
+          echo "image_repo="${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY" >> $GITHUB_OUTPUT
+          # echo "::set-output name=image_repo_shatag::"${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }}
+          echo "image_repo_shatag="${{ steps.login-ecr.outputs.registry }}"/$ECR_REPOSITORY:"${{ github.sha }} >> $GITHUB_OUTPUT
       - name: Build image and tag it
         run: |
           docker build --load -t ${{ steps.buildinfo.outputs.image_repo_shatag }} .
