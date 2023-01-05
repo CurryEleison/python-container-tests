@@ -29,7 +29,8 @@ RUN pipenv install --dev
 # But in this case I want to demo a test action
 
 # Using string syntax because we want a shell to support the &&
-CMD pipenv run pylama && pipenv run pytest --junitxml=test-results/pytest.xml
+#CMD pipenv run pylama && pipenv run pytest --junitxml=test-results/pytest.xml
+CMD pipenv run pytest --junitxml=test-results/pytest.xml
 
 # Builder image to create wheels for production
 FROM base as builder
